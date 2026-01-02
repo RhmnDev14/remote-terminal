@@ -1,4 +1,4 @@
-# Remote Terminal Mobile App (Laravel)
+# Remote Terminal (Laravel)
 
 A mobile-first web application that acts as a remote SSH terminal client. **Developed by Rahman Umardi**, this project is built with **Laravel 12**, **Livewire**, and **TailwindCSS** to provide a real-time terminal experience in your browser.
 
