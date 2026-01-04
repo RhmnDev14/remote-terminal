@@ -9,6 +9,7 @@ export default defineConfig({
                 "resources/css/app.css",
                 "resources/js/app.js",
                 "resources/js/firebase.js",
+                "resources/js/interactive-terminal.js",
             ],
             refresh: true,
         }),

@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ $title ?? 'Rahman Terminal' }}</title>
         
@@ -13,10 +14,16 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=RT">
 
+        <!-- xterm.js CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css">
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         
         <!-- Firebase -->
         @vite(['resources/js/firebase.js'])
+        
+        <!-- Interactive Terminal -->
+        @vite(['resources/js/interactive-terminal.js'])
     </head>
     <body class="bg-gray-900 text-white antialiased">
         {{ $slot }}
