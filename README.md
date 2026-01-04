@@ -131,6 +131,25 @@ Build native mobile apps for Android and iOS using Capacitor:
 
 3. Build APK/IPA from the respective IDE.
 
+## 🐳 Docker
+
+Deploy menggunakan Docker/Podman:
+
+```bash
+# Clone dan setup
+git clone https://github.com/RhmnDev14/remote-terminal.git
+cd remote-terminal
+cp .env.example .env
+
+# Build dan run
+docker compose up -d --build
+```
+
+App tersedia di:
+
+-   **Web**: `http://localhost:8000`
+-   **SSH Proxy**: `ws://localhost:2222`
+
 ## 📄 License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
