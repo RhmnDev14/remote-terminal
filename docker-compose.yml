@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    container_name: remote-terminal
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "2222:2222"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    volumes:
+      - ./storage/logs:/var/www/html/storage/logs
