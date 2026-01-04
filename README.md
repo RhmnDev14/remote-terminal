@@ -104,6 +104,33 @@ SSH Proxy Server (Node.js + ssh2)
 Remote VM Terminal
 ```
 
+## 📱 Mobile App
+
+Build native mobile apps for Android and iOS using Capacitor:
+
+### Prerequisites
+
+-   **Android**: Android Studio
+-   **iOS**: Xcode (macOS only)
+
+### Build Mobile App
+
+1. Update WebSocket URL in `public/index.html` to your production server:
+
+    ```javascript
+    const WS_URL = "wss://your-domain.com:2222";
+    ```
+
+2. Sync and open in IDE:
+
+    ```bash
+    npm run mobile:sync
+    npm run mobile:android  # Opens Android Studio
+    npm run mobile:ios      # Opens Xcode
+    ```
+
+3. Build APK/IPA from the respective IDE.
+
 ## 📄 License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <meta name="csrf-token" content="" />
+
+        <title>Remote Terminal</title>
+
+        <!-- PWA Manifest & Meta -->
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#111827" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+        />
+
+        <!-- xterm.js CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css"
+        />
+
+        <!-- Built Assets -->
+        <link rel="stylesheet" href="/build/assets/app-BbnRK1EP.css" />
+
+        <style>
+            /* Base styles */
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, sans-serif;
+                background: #111827;
+                color: white;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            /* Mobile Terminal Container */
+            .terminal-app {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                max-width: 100%;
+                padding: 8px;
+            }
+
+            /* Connection Bar */
+            .connection-bar {
+                background: #1f2937;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+            .connection-bar h2 {
+                margin: 0 0 12px 0;
+                font-size: 14px;
+                color: #9ca3af;
+            }
+            .connection-bar .status {
+                color: #22c55e;
+                margin-left: 8px;
+            }
+            .input-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .input-group input {
+                flex: 1;
+                min-width: 100px;
+                padding: 10px;
+                background: #374151;
+                border: 1px solid #4b5563;
+                border-radius: 6px;
+                color: white;
+                font-size: 14px;
+            }
+            .input-group input:focus {
+                outline: none;
+                border-color: #22c55e;
+            }
+            .input-group button {
+                padding: 10px 20px;
+                background: #2563eb;
+                border: none;
+                border-radius: 6px;
+                color: white;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            .input-group button:active {
+                background: #1d4ed8;
+            }
+            .input-group button.disconnect {
+                background: #dc2626;
+            }
+
+            /* Terminal Container */
+            .terminal-container {
+                flex: 1;
+                border-radius: 8px;
+                overflow: hidden;
+                border: 1px solid #374151;
+                background: #1a1b26;
+            }
+            #xterm-container {
+                height: 100%;
+                width: 100%;
+            }
+
+            /* Welcome Screen */
+            .welcome-screen {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                background: #1f2937;
+                border-radius: 8px;
+                padding: 32px;
+            }
+            .welcome-screen .icon {
+                font-size: 64px;
+                margin-bottom: 16px;
+            }
+            .welcome-screen h2 {
+                margin: 0 0 8px 0;
+                font-size: 24px;
+            }
+            .welcome-screen p {
+                margin: 0;
+                color: #9ca3af;
+            }
+            .welcome-screen .dev {
+                margin-top: 16px;
+                font-size: 12px;
+                color: #6b7280;
+            }
+
+            /* Loading */
+            .loading-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.7);
+                align-items: center;
+                justify-content: center;
+                z-index: 100;
+            }
+            .loading-overlay.show {
+                display: flex;
+            }
+            .loading-box {
+                background: #1f2937;
+                padding: 16px 24px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .spinner {
+                width: 20px;
+                height: 20px;
+                border: 2px solid #3b82f6;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="terminal-app">
+            <!-- Connection Bar -->
+            <div class="connection-bar">
+                <h2>
+                    🖥️ Remote Terminal
+                    <span class="status" id="status" style="display: none"
+                        >● Connected</span
+                    >
+                </h2>
+                <div class="input-group">
+                    <input type="text" id="host" placeholder="Host IP" />
+                    <input type="text" id="username" placeholder="User" />
+                    <input type="password" id="password" placeholder="Pass" />
+                    <button id="connectBtn" onclick="connectSSH()">
+                        Connect
+                    </button>
+                </div>
+            </div>
+
+            <!-- Terminal Container (hidden when not connected) -->
+            <div
+                class="terminal-container"
+                id="terminalContainer"
+                style="display: none"
+            >
+                <div id="xterm-container"></div>
+            </div>
+
+            <!-- Welcome Screen (shown when not connected) -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="icon">🖥️</div>
+                <h2>Remote Terminal</h2>
+                <p>Connect to your SSH server to start</p>
+                <p class="dev">Developed by Rahman Umardi</p>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <span>Connecting...</span>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script
+            src="/build/assets/interactive-terminal-zw8wmg3n.js"
+            type="module"
+        ></script>
+        <script type="module">
+            // Configuration - CHANGE THIS TO YOUR PRODUCTION SERVER
+            const WS_URL = "wss://your-domain.com:2222"; // Production WebSocket URL
+
+            let interactiveTerminal = null;
+            let isConnected = false;
+
+            window.connectSSH = async function () {
+                const host = document.getElementById("host").value;
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                if (!host || !username || !password) {
+                    alert("Please fill all fields");
+                    return;
+                }
+
+                document.getElementById("loadingOverlay").classList.add("show");
+
+                try {
+                    // Wait for InteractiveTerminal to be loaded
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+
+                    if (typeof InteractiveTerminal === "undefined") {
+                        throw new Error("Terminal not loaded");
+                    }
+
+                    document.getElementById("welcomeScreen").style.display =
+                        "none";
+                    document.getElementById("terminalContainer").style.display =
+                        "block";
+
+                    interactiveTerminal = new InteractiveTerminal(
+                        "xterm-container",
+                        {
+                            wsUrl: WS_URL,
+                        }
+                    );
+                    interactiveTerminal.mount();
+
+                    const connected = await interactiveTerminal.connect(
+                        host,
+                        username,
+                        password
+                    );
+
+                    if (connected) {
+                        isConnected = true;
+                        document.getElementById("status").style.display =
+                            "inline";
+                        document.getElementById("connectBtn").textContent =
+                            "Disconnect";
+                        document.getElementById("connectBtn").className =
+                            "disconnect";
+                        document.getElementById("connectBtn").onclick =
+                            disconnectSSH;
+                        interactiveTerminal.focus();
+                    } else {
+                        throw new Error("Connection failed");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Connection failed: " + e.message);
+                    document.getElementById("welcomeScreen").style.display =
+                        "flex";
+                    document.getElementById("terminalContainer").style.display =
+                        "none";
+                } finally {
+                    document
+                        .getElementById("loadingOverlay")
+                        .classList.remove("show");
+                }
+            };
+
+            window.disconnectSSH = async function () {
+                if (interactiveTerminal) {
+                    await interactiveTerminal.disconnect();
+                    interactiveTerminal = null;
+                }
+                isConnected = false;
+                document.getElementById("status").style.display = "none";
+                document.getElementById("connectBtn").textContent = "Connect";
+                document.getElementById("connectBtn").className = "";
+                document.getElementById("connectBtn").onclick = connectSSH;
+                document.getElementById("welcomeScreen").style.display = "flex";
+                document.getElementById("terminalContainer").style.display =
+                    "none";
+            };
+        </script>
+    </body>
+</html>
