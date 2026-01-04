@@ -5,17 +5,18 @@ A mobile-first web application that acts as a remote SSH terminal client. **Deve
 ## 🚀 Features
 
 -   **Web-based SSH Client**: Connect to any server via SSH directly from your browser.
+-   **Interactive Terminal**: Full PTY support for `nano`, `vim`, `htop`, and all interactive commands.
+-   **Real-time WebSocket**: Uses xterm.js with WebSocket for true terminal experience.
 -   **Mobile Optimized (PWA)**: Installable on home screen with offline capabilities.
--   **Real-time Interaction**: Uses Livewire for seamless command execution without page reloads.
--   **Command History**: Visual history of your commands and server outputs.
 -   **Secure**: Credentials are processed server-side via `phpseclib` and not exposed to the client.
 -   **Firebase Integration**: Analytics and ready-to-use boilerplate for cloud features.
 
 ## 🛠 Tech Stack
 
--   **Backend**: Laravel 12 (PHP 8.2+)
--   **Frontend**: Livewire 3, TailwindCSS 4, Alpine.js, Firebase JS SDK
--   **SSH Library**: `phpseclib/phpseclib` v3
+-   **Backend**: Laravel 12 (PHP 8.2+), Node.js (SSH Proxy)
+-   **Frontend**: Livewire 3, TailwindCSS 4, Alpine.js, xterm.js
+-   **SSH Library**: `ssh2` (Node.js), `phpseclib/phpseclib` v3 (PHP)
+-   **WebSocket**: `ws` (Node.js)
 -   **Database**: None (Stateless/File-based sessions)
 
 ## 📋 Prerequisites
@@ -23,8 +24,8 @@ A mobile-first web application that acts as a remote SSH terminal client. **Deve
 Ensure you have the following installed:
 
 -   **PHP 8.2+** (with `mbstring`, `openssl`, `curl` extensions)
+-   **Node.js 18+** & **NPM**
 -   **Composer**
--   **Node.js & NPM**
 
 ## ⚙️ Installation
 
@@ -41,7 +42,7 @@ Ensure you have the following installed:
     # PHP Dependencies
     composer install
 
-    # Node Dependencies (for TailwindCSS)
+    # Node Dependencies
     npm install
     npm run build
     ```
@@ -59,32 +60,49 @@ Ensure you have the following installed:
     php artisan key:generate
     ```
 
-    Configure Firebase credentials in `.env`:
+    Configure Firebase credentials in `.env` (optional):
 
     ```ini
     VITE_FIREBASE_API_KEY=your_api_key
     VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
     VITE_FIREBASE_PROJECT_ID=your_project_id
-    # ... fill other firebase keys
     ```
-
-    > **Important**: After changing `.env`, you must run `npm run build` to update the frontend assets.
 
 ## 🚀 Usage
 
-1.  **Start the Server**
+You need to run **two servers**:
 
-    ```bash
-    php artisan serve
-    ```
+**Terminal 1 - SSH Proxy Server**:
 
-    The app will be available at `http://127.0.0.1:8000`.
+```bash
+npm run ssh-proxy
+```
 
-2.  **Connect to a Server**
-    -   Open the app on your mobile or desktop browser.
-    -   Enter the **Host IP**, **Username**, and **Password** in the top bar.
-    -   Click **Connect**.
-    -   Once connected, type commands in the input bar at the bottom (e.g., `ls -la`, `htop`).
+**Terminal 2 - Laravel Server**:
+
+```bash
+npm run dev &
+php artisan serve
+```
+
+The app will be available at `http://127.0.0.1:8000`.
+
+### Connecting to a Server
+
+1. Open the app in your browser
+2. Enter **Host IP**, **Username**, and **Password**
+3. Click **Connect**
+4. Use the terminal as you would a normal SSH session (nano, vim, htop all work!)
+
+## 📁 Architecture
+
+```
+Browser (xterm.js)
+    ↓ WebSocket
+SSH Proxy Server (Node.js + ssh2)
+    ↓ SSH + PTY
+Remote VM Terminal
+```
 
 ## 📄 License
 
