@@ -7,8 +7,9 @@ A mobile-first web application that acts as a remote SSH terminal client. **Deve
 -   **Web-based SSH Client**: Connect to any server via SSH directly from your browser.
 -   **Interactive Terminal**: Full PTY support for `nano`, `vim`, `htop`, and all interactive commands.
 -   **Real-time WebSocket**: Uses xterm.js with WebSocket for true terminal experience.
+-   **Session Persistence**: Auto-reconnect on page refresh - your session is preserved.
+-   **Dark/Light Mode**: Toggle between dark and light themes for the entire app including terminal.
 -   **Mobile Optimized (PWA)**: Installable on home screen with offline capabilities.
--   **Secure**: Credentials are processed server-side via Node.js SSH2 and not exposed to the client.
 -   **Single Command**: Run everything with one command (`npm run start`).
 
 ## 🛠 Tech Stack
@@ -70,9 +71,9 @@ npm run start
 
 This starts:
 
--   Laravel server at `http://localhost:8000`
--   SSH WebSocket proxy at `ws://localhost:2222`
--   Vite dev server for hot reload
+-   🌐 Laravel server at `http://localhost:8000`
+-   🔌 SSH WebSocket proxy at `ws://localhost:2222`
+-   ⚡ Vite dev server for hot reload
 
 Open `http://localhost:8000` in your browser.
 
@@ -82,6 +83,14 @@ Open `http://localhost:8000` in your browser.
 2. Enter **Host IP**, **Username**, and **Password**
 3. Click **Connect**
 4. Use the terminal as you would a normal SSH session (nano, vim, htop all work!)
+
+### Theme Toggle
+
+Click the sun/moon icon next to the "Hide" button to switch between dark and light mode. The terminal colors will adapt automatically.
+
+### Session Persistence
+
+Your SSH session is automatically saved. When you refresh the page, the terminal will reconnect automatically using your saved credentials. Click **Disconnect** to clear the saved session.
 
 ## 📁 Architecture
 
