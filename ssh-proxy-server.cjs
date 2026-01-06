@@ -4,7 +4,7 @@
  * This server maintains persistent SSH connections with PTY support
  * for interactive terminal applications like nano, vim, htop.
  * 
- * Run with: node ssh-proxy-server.js
+ * Run with: node ssh-proxy-server.cjs
  */
 
 const WebSocket = require('ws');

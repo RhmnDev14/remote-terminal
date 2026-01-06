@@ -6,6 +6,8 @@
         "build": "vite build",
         "dev": "vite",
         "ssh-proxy": "node ssh-proxy-server.cjs",
+        "start": "concurrently -n laravel,ssh,vite -c blue,green,yellow \"php artisan serve\" \"node ssh-proxy-server.cjs\" \"vite\"",
+        "start:prod": "concurrently -n laravel,ssh -c blue,green \"php artisan serve --host=0.0.0.0\" \"node ssh-proxy-server.cjs\"",
         "mobile:sync": "npx cap sync",
         "mobile:android": "npx cap open android",
         "mobile:ios": "npx cap open ios"
@@ -19,13 +21,15 @@
         "@xterm/addon-web-links": "^0.11.0",
         "@xterm/xterm": "^5.5.0",
         "ssh2": "^1.17.0",
-        "ws": "^8.18.3"
+        "ws": "^8.19.0"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "laravel-echo": "^2.2.7",
         "laravel-vite-plugin": "^2.0.0",
+        "pusher-js": "^8.4.0",
         "tailwindcss": "^4.0.0",
         "vite": "^7.0.7"
     }

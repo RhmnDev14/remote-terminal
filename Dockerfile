@@ -30,6 +30,7 @@ RUN chmod -R 755 storage bootstrap/cache
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
+# Laravel HTTP and SSH WebSocket proxy
 EXPOSE 8000 2222
 
 CMD ["/docker-entrypoint.sh"]

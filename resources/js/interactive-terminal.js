@@ -7,11 +7,64 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 
+// Theme configurations
+const themes = {
+    dark: {
+        background: '#1a1b26',
+        foreground: '#a9b1d6',
+        cursor: '#c0caf5',
+        cursorAccent: '#1a1b26',
+        selection: '#33467c',
+        black: '#32344a',
+        red: '#f7768e',
+        green: '#9ece6a',
+        yellow: '#e0af68',
+        blue: '#7aa2f7',
+        magenta: '#ad8ee6',
+        cyan: '#449dab',
+        white: '#787c99',
+        brightBlack: '#444b6a',
+        brightRed: '#ff7a93',
+        brightGreen: '#b9f27c',
+        brightYellow: '#ff9e64',
+        brightBlue: '#7da6ff',
+        brightMagenta: '#bb9af7',
+        brightCyan: '#0db9d7',
+        brightWhite: '#acb0d0',
+    },
+    light: {
+        background: '#fafafa',
+        foreground: '#383a42',
+        cursor: '#526eff',
+        cursorAccent: '#fafafa',
+        selection: '#e5e5e6',
+        black: '#383a42',
+        red: '#e45649',
+        green: '#50a14f',
+        yellow: '#c18401',
+        blue: '#4078f2',
+        magenta: '#a626a4',
+        cyan: '#0184bc',
+        white: '#a0a1a7',
+        brightBlack: '#4f525e',
+        brightRed: '#e06c75',
+        brightGreen: '#98c379',
+        brightYellow: '#e5c07b',
+        brightBlue: '#61afef',
+        brightMagenta: '#c678dd',
+        brightCyan: '#56b6c2',
+        brightWhite: '#ffffff',
+    }
+};
+
 export class InteractiveTerminal {
     constructor(containerId, options = {}) {
         this.containerId = containerId;
         this.ws = null;
         this.isConnected = false;
+        
+        // Determine initial theme based on system/localStorage preference
+        const isDark = localStorage.getItem('darkMode') !== 'false';
         
         // WebSocket server URL (SSH Proxy)
         this.wsUrl = options.wsUrl || 'ws://localhost:2222';
@@ -22,29 +75,7 @@ export class InteractiveTerminal {
             cursorStyle: 'block',
             fontFamily: 'JetBrains Mono, Menlo, Monaco, Consolas, monospace',
             fontSize: options.fontSize || 14,
-            theme: {
-                background: '#1a1b26',
-                foreground: '#a9b1d6',
-                cursor: '#c0caf5',
-                cursorAccent: '#1a1b26',
-                selection: '#33467c',
-                black: '#32344a',
-                red: '#f7768e',
-                green: '#9ece6a',
-                yellow: '#e0af68',
-                blue: '#7aa2f7',
-                magenta: '#ad8ee6',
-                cyan: '#449dab',
-                white: '#787c99',
-                brightBlack: '#444b6a',
-                brightRed: '#ff7a93',
-                brightGreen: '#b9f27c',
-                brightYellow: '#ff9e64',
-                brightBlue: '#7da6ff',
-                brightMagenta: '#bb9af7',
-                brightCyan: '#0db9d7',
-                brightWhite: '#acb0d0',
-            },
+            theme: isDark ? themes.dark : themes.light,
             allowProposedApi: true,
         });
 
@@ -55,6 +86,34 @@ export class InteractiveTerminal {
         
         // Bind resize handler
         this.handleResize = this.handleResize.bind(this);
+        
+        // Listen for theme changes
+        this.setupThemeListener();
+    }
+
+    /**
+     * Setup listener for theme changes
+     */
+    setupThemeListener() {
+        // Watch for dark mode changes via MutationObserver on html class
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    this.setTheme(isDark ? 'dark' : 'light');
+                }
+            });
+        });
+        
+        observer.observe(document.documentElement, { attributes: true });
+    }
+
+    /**
+     * Set terminal theme
+     */
+    setTheme(themeName) {
+        const theme = themes[themeName] || themes.dark;
+        this.terminal.options.theme = theme;
     }
 
     /**
@@ -152,7 +211,7 @@ export class InteractiveTerminal {
                 this.ws.onerror = (err) => {
                     console.error('WebSocket error:', err);
                     this.terminal.writeln('\x1b[1;31m✗ WebSocket connection failed\x1b[0m');
-                    this.terminal.writeln('\x1b[90mMake sure SSH proxy server is running: npm run ssh-proxy\x1b[0m');
+                    this.terminal.writeln('\x1b[90mMake sure to run: npm run start\x1b[0m');
                     resolve(false);
                 };
                 

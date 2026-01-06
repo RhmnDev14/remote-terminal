@@ -8,14 +8,14 @@ A mobile-first web application that acts as a remote SSH terminal client. **Deve
 -   **Interactive Terminal**: Full PTY support for `nano`, `vim`, `htop`, and all interactive commands.
 -   **Real-time WebSocket**: Uses xterm.js with WebSocket for true terminal experience.
 -   **Mobile Optimized (PWA)**: Installable on home screen with offline capabilities.
--   **Secure**: Credentials are processed server-side via `phpseclib` and not exposed to the client.
--   **Firebase Integration**: Analytics and ready-to-use boilerplate for cloud features.
+-   **Secure**: Credentials are processed server-side via Node.js SSH2 and not exposed to the client.
+-   **Single Command**: Run everything with one command (`npm run start`).
 
 ## 🛠 Tech Stack
 
 -   **Backend**: Laravel 12 (PHP 8.2+), Node.js (SSH Proxy)
 -   **Frontend**: Livewire 3, TailwindCSS 4, Alpine.js, xterm.js
--   **SSH Library**: `ssh2` (Node.js), `phpseclib/phpseclib` v3 (PHP)
+-   **SSH Library**: `ssh2` (Node.js)
 -   **WebSocket**: `ws` (Node.js)
 -   **Database**: None (Stateless/File-based sessions)
 
@@ -60,32 +60,21 @@ Ensure you have the following installed:
     php artisan key:generate
     ```
 
-    Configure Firebase credentials in `.env` (optional):
-
-    ```ini
-    VITE_FIREBASE_API_KEY=your_api_key
-    VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-    VITE_FIREBASE_PROJECT_ID=your_project_id
-    ```
-
 ## 🚀 Usage
 
-You need to run **two servers**:
-
-**Terminal 1 - SSH Proxy Server**:
+**Single command to run everything**:
 
 ```bash
-npm run ssh-proxy
+npm run start
 ```
 
-**Terminal 2 - Laravel Server**:
+This starts:
 
-```bash
-npm run dev &
-php artisan serve
-```
+-   Laravel server at `http://localhost:8000`
+-   SSH WebSocket proxy at `ws://localhost:2222`
+-   Vite dev server for hot reload
 
-The app will be available at `http://127.0.0.1:8000`.
+Open `http://localhost:8000` in your browser.
 
 ### Connecting to a Server
 
@@ -115,10 +104,10 @@ Build native mobile apps for Android and iOS using Capacitor:
 
 ### Build Mobile App
 
-1. Update WebSocket URL in `public/index.html` to your production server:
+1. Update WebSocket URL in `resources/js/interactive-terminal.js` for production:
 
     ```javascript
-    const WS_URL = "wss://your-domain.com:2222";
+    this.wsUrl = options.wsUrl || "wss://your-domain.com:2222";
     ```
 
 2. Sync and open in IDE:
